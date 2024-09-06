@@ -37,7 +37,7 @@ The full list of supported devices and features is available on Glucose Data Han
 
 ## How it works
 
-The Tasker profiles listen for the "New glucose value", "Obsolute value", and "Glucose alarm" events provided by Glucose Data Handler. The data provided via those events is assembled into a JavaScript object and sent to the Bangle.js, via the `com.banglejs.uart.tx` Intent that the Bangle.js GadgetBridge app listens for.
+The Tasker profiles listen for the "New glucose value", "Obsolute value", and "Glucose alarm" events provided by Glucose Data Handler. The data provided via those events is assembled into a JavaScript object and sent to the Bangle.js device, via the `com.banglejs.uart.tx` Intent that the GadgetBridge app listens for.
 
 ## Example usage
 
@@ -66,7 +66,7 @@ glucodata.onData(function(data) {
 
 ## Requests
 
-Please file any issues on https://github.com/espruino/BangleApps/issues/new?title=[xdripevents]%20library
+Please file any issues on https://github.com/espruino/BangleApps/issues/new?title=[glucodata]%20library
 
 ## Creator
 
@@ -76,5 +76,5 @@ Elijah Shaw-Rutschman
 
 Icons used in this app are from:
 
-  - [Diabetes icons created by Muhammad_Usman - Flaticon](https://www.flaticon.com/free-icons/diabetes)![alt text](<diabetes (1) 2 sync.png>)
+  - [Diabetes icons created by Muhammad_Usman - Flaticon](https://www.flaticon.com/free-icons/diabetes)
   - [Refresh icons created by Tempo_doloe - Flaticon](https://www.flaticon.com/free-icons/refresh)

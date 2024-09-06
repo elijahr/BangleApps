@@ -6,13 +6,21 @@
   "icon": "app.png",
   "type": "module",
   "tags": "tool,system,glucose,diabetes,blood glucose,glucodata",
-  "supports": ["BANGLEJS","BANGLEJS2"],
-  "provides_modules" : ["glucodata"],
-  "dependencies" : {
-    "android":"module"
+  "supports": [
+    "BANGLEJS",
+    "BANGLEJS2"
+  ],
+  "provides_modules": [
+    "glucodata"
+  ],
+  "dependencies": {
+    "android": "app"
   },
   "readme": "README.md",
   "storage": [
-    {"name":"glucodata.js","url":"dist/lib.min.js"}
+    {
+      "name": "glucodata.js",
+      "url": "dist/lib.min.js"
+    }
   ]
 }
