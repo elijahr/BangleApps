@@ -1,0 +1,18 @@
+{
+  "id": "glucodata",
+  "name": "Glucodata",
+  "version": "0.1.0",
+  "description": "Library to handle the passing of blood glucose data and alarms from various devices to your Bangle.js watch.",
+  "icon": "app.png",
+  "type": "module",
+  "tags": "tool,system,glucose,diabetes,blood glucose,glucodata",
+  "supports": ["BANGLEJS","BANGLEJS2"],
+  "provides_modules" : ["glucodata"],
+  "dependencies" : {
+    "android":"module"
+  },
+  "readme": "README.md",
+  "storage": [
+    {"name":"glucodata.js","url":"dist/lib.min.js"}
+  ]
+}
