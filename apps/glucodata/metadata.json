@@ -20,6 +20,5 @@
       "name": "glucodata.js",
       "url": "dist/glucodata/glucodata/index.js"
     }
-  ],
-  "allow_emulator":true
+  ]
 }

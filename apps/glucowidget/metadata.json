@@ -20,6 +20,5 @@
       "name": "gluco.wid.js",
       "url": "dist/glucowidget/glucowidget/index.js"
     }
-  ],
-  "allow_emulator":true
+  ]
 }
