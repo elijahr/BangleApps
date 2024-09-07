@@ -2,7 +2,7 @@ import {
   // Handler,
   GlucoseData,
   // HandlerCleanup,
-} from 'glucodata';
+} from './index.d';
 
 // global["WIDGETS"] = {}; // <-- for development only
 
