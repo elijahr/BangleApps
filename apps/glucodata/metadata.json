@@ -13,9 +13,7 @@
   "provides_modules": [
     "glucodata"
   ],
-  "dependencies": {
-    "android": "app"
-  },
+  "dependencies": {"android":"app"},
   "readme": "README.md",
   "storage": [
     {
