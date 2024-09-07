@@ -4,22 +4,18 @@
   "version": "0.1.0",
   "description": "Widget to display blood glucose information on your watch.",
   "icon": "app.png",
-  "type": "module",
+  "type": "widget",
   "tags": "glucose,diabetes,blood glucose,glucodata,widget",
   "supports": [
     "BANGLEJS",
     "BANGLEJS2"
   ],
   "provides_modules": [
-    "glucowidget"
+    "glucowidget.wid"
   ],
   "dependencies": {"android":"app"},
   "readme": "README.md",
   "storage": [
-    {
-      "name": "glucowidget.js",
-      "url": "dist/glucowidget/glucowidget/index.js"
-    },
     {
       "name": "glucowidget.wid.js",
       "url": "glucowidget.wid.js"
