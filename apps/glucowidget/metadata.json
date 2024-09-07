@@ -1,0 +1,24 @@
+{
+  "id": "glucowidget",
+  "name": "Glucowidget",
+  "version": "0.1.0",
+  "description": "Widget to display blood glucose information on your watch.",
+  "icon": "app.png",
+  "type": "module",
+  "tags": "glucose,diabetes,blood glucose,glucodata,widget",
+  "supports": [
+    "BANGLEJS",
+    "BANGLEJS2"
+  ],
+  "provides_modules": [
+    "glucowidget"
+  ],
+  "dependencies": {"glucodata":"app"},
+  "readme": "README.md",
+  "storage": [
+    {
+      "name": "glucowidget.js",
+      "url": "./dist/glucowidget/glucowidget/index.js"
+    }
+  ]
+}

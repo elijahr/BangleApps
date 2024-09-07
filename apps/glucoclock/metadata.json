@@ -1,0 +1,24 @@
+{
+  "id": "Widget",
+  "name": "Glucoclock",
+  "version": "0.1.0",
+  "description": "Clock to display blood glucose information on your watch.",
+  "icon": "app.png",
+  "type": "module",
+  "tags": "glucose,diabetes,blood glucose,glucodata,clock",
+  "supports": [
+    "BANGLEJS",
+    "BANGLEJS2"
+  ],
+  "provides_modules": [
+    "glucoclock"
+  ],
+  "dependencies": {"glucodata":"app"},
+  "readme": "README.md",
+  "storage": [
+    {
+      "name": "glucoclock.js",
+      "url": "dist/glucoclock/glucoclock/index.js"
+    }
+  ]
+}
