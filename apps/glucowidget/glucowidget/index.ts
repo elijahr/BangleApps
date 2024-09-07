@@ -2,7 +2,6 @@ import {
   // Handler,
   GlucoseData,
   // HandlerCleanup,
-  onData,
 } from 'glucodata';
 
 // global["WIDGETS"] = {}; // <-- for development only
@@ -24,10 +23,12 @@ import {
     u: "",
   };
 
-  onData((d: GlucoseData) => {
+  // @ts-expect-error Bangle is global
+  Bangle.on('glucodata', (d: GlucoseData) => {
     data = d;
     // @ts-expect-error Terminal is global
-    Terminal.println()
+    Terminal.println(JSON.stringify(d))
+    console.log(JSON.stringify(d))
   });
 
   function draw() {

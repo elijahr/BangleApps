@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var glucodata_1 = require("glucodata");
 (function () {
     var data = {
         a: "",
@@ -17,9 +16,10 @@ var glucodata_1 = require("glucodata");
         td: "",
         u: "",
     };
-    (0, glucodata_1.onData)(function (d) {
+    Bangle.on('glucodata', function (d) {
         data = d;
-        Terminal.println();
+        Terminal.println(JSON.stringify(d));
+        console.log(JSON.stringify(d));
     });
     function draw() {
         g.reset();
