@@ -20,5 +20,6 @@
       "name": "glucoclock.js",
       "url": "dist/glucoclock/glucoclock/index.js"
     }
-  ]
+  ],
+  "allow_emulator":true
 }

@@ -17,8 +17,9 @@
   "readme": "README.md",
   "storage": [
     {
-      "name": "glucowidget.js",
+      "name": "gluco.wid.js",
       "url": "./dist/glucowidget/glucowidget/index.js"
     }
-  ]
+  ],
+  "allow_emulator":true
 }
