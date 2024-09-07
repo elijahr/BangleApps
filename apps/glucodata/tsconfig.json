@@ -1,12 +1,16 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "rootDir": "..",
     "target": "es5",
     "module": "commonjs",
     "outDir": "./dist",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
-    "skipLibCheck": false
+    "skipLibCheck": false,
+    "lib": ["es5", "dom"],
+    "noLib": false
   },
   "include": [
       "./glucodata/index.ts"

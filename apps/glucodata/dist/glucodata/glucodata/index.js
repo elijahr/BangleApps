@@ -17,7 +17,6 @@ function emit(data) {
 function onData(handler) {
     handlers.push(handler);
     return function () {
-        // Cleanup function
         var index = handlers.indexOf(handler);
         if (index >= 0) {
             handlers.splice(index, 1);

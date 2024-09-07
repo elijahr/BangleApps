@@ -1,8 +1,12 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "rootDir": "..",
     "target": "es5",
     "module": "commonjs",
     "baseUrl": "./",
+    "lib": ["es5", "dom"],
+    "noLib": false,
     "paths": {
       "glucodata": ["../glucodata/glucodata/index"]
     },

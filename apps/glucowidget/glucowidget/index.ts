@@ -1,7 +1,7 @@
 import {
-  Handler,
+  // Handler,
   GlucoseData,
-  HandlerCleanup,
+  // HandlerCleanup,
   onData,
 } from 'glucodata';
 
@@ -26,6 +26,8 @@ import {
 
   onData((d: GlucoseData) => {
     data = d;
+    // @ts-expect-error Terminal is global
+    Terminal.println()
   });
 
   function draw() {

@@ -1,8 +1,8 @@
-import {
-  Handler,
-  GlucoseData,
-  HandlerCleanup,
-} from 'glucodata';
+// import {
+//   Handler,
+//   GlucoseData,
+//   HandlerCleanup,
+// } from 'glucodata';
 
 
 (function () {
