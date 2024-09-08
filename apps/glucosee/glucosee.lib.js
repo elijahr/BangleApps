@@ -25,12 +25,20 @@ The data sent to `callback` looks like:
 These values are sent from Gluco Data Handler, via a Tasker action.
 */
 
+function log(msg) {
+    console.log("glucosee: " + msg.toString());
+}
+
+function error(msg) {
+    console.error("glucosee: " + msg.toString());
+}
+
 function getData() {
     try {
         return require("Storage").readJSON("glucosee.data.json");
     } catch (e) {
         // In case there are no user triggers yet, we show the default...
-        console.error("glucosee: error loading data:", e);
+        error("error loading data:", e);
         return null
     }
 }
@@ -46,6 +54,7 @@ function isListening() {
 }
 
 function startListening() {
+    log("Starting listener")
     if (!listening) {
         listening = true;
         Bangle.on("glucose", updateData);
@@ -54,6 +63,7 @@ function startListening() {
 
 function stopListening() {
     if (listening) {
+        log("Stopping listener")
         listening = false;
         Bangle.removeListener("glucose", updateData);
     }
@@ -80,6 +90,7 @@ function updateSettings(newSettings) {
             settings[key] = newSettings[key];
         }
     }
+    log("Writing to glucosee.settings.json")
     require("Storage").writeJSON("glucosee.settings.json", settings);
 }
 

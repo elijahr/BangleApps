@@ -4,7 +4,7 @@
   "version": "0.01",
   "description": "Displays blood glucose information and alarms as a \"clock info\" item.",
   "icon": "app.png",
-  "type": "app",
+  "type": "clkinfo",
   "tags": "clkinfo,widget,blood glucose,health,diabetes,dexcom,xdrip",
   "readme": "README.md",
   "supports": ["BANGLEJS","BANGLEJS2"],
