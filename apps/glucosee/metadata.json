@@ -1,7 +1,7 @@
 {
   "id": "glucosee",
   "name": "GlucoSee",
-  "version": "0.02",
+  "version": "0.03",
   "description": "Displays blood glucose information and alarms as a \"clock info\" item.",
   "icon": "app.png",
   "type": "clkinfo",
@@ -9,14 +9,7 @@
   "readme": "README.md",
   "supports": ["BANGLEJS2"],
   "dependencies": {"android":"app","clock_info":"module"},
-  "interface": "interface.html",
-  "data": [
-    {"name":"glucosee.data.json"},
-    {"name":"glucosee.settings.json"}
-  ],
   "storage": [
-    {"name":"glucosee.lib.js","url":"glucosee.lib.js"},
-    {"name":"glucosee.clkinfo.js","url":"glucosee.clkinfo.js"},
-    {"name":"glucosee.img","url":"glucosee.icon.js","evaluate":true}
+    {"name":"glucosee.clkinfo.js","url":"glucosee.clkinfo.js"}
   ]
 }

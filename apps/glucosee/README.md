@@ -1,6 +1,6 @@
 # GlucoSee
 
-This app displays blood glucose information and alarms on your Bangle.js watch, as a "clock info" item.
+This clock info item displays blood glucose information and alarms on your Bangle.js watch.
 
 ## Installation
 
