@@ -136,19 +136,12 @@ exports.load = function() {
   // object a, we append the items. Otherwise we add the new object a to the list.
   require("Storage").list(/clkinfo.js$/).forEach(fn => {
     try{
-      console.log("clock_info loading file " + E.toJS(fn));
       var a = eval(require("Storage").read(fn))();
-      console.log("clock_info loaded file, " + JSON.stringify(a));
       var b = menu.find(x => x.name === a.name);
-      console.log("clock_info b=" + JSON.stringify(b));
       if(b) {
-        console.log("clock_info was b.items=" + JSON.stringify(b.items));
         b.items = b.items.concat(a.items);
-        console.log("clock_info is b.items=" + JSON.stringify(b.items));
       } else {
-        console.log("clock_info was menu=" + JSON.stringify(menu));
         menu = menu.concat(a);
-        console.log("clock_info is menu=" + JSON.stringify(menu));
       }
     } catch(e){
       console.log("Could not load clock info "+E.toJS(fn)+": "+e);
@@ -228,22 +221,19 @@ exports.addInteractive = function(menu, options) {
 
   // load the currently showing clock_infos
   let settings = exports.loadSettings();
-  console.log("clock_info: addInteractive: appName=" + appName + " settings=" + JSON.stringify(settings))
   if (settings.apps[appName]) {
     let a = settings.apps[appName].a|0;
     let b = settings.apps[appName].b|0;
     if (menu[a] && menu[a].items[b]) { // all ok
       options.menuA = a;
       options.menuB = b;
-    } else {
-      console.log("clock_info: addInteractive: all not ok a=" + a + " b=" + b)
     }
   }
   const save = () => {
+    debugger
     // save the currently showing clock_info
     const settings = exports.loadSettings();
     settings.apps[appName] = {a:options.menuA, b:options.menuB};
-    console.log("clock_info: addInteractive save called, settings=" + JSON.stringify(settings));
     require("Storage").writeJSON("clock_info.json",settings);
   };
   E.on("kill", save);
@@ -251,39 +241,37 @@ exports.addInteractive = function(menu, options) {
   if (options.menuA===undefined) options.menuA = 0;
   if (options.menuB===undefined) options.menuB = Math.min(exports.loadCount, menu[options.menuA].items.length)-1;
   function drawItem(itm) {
-    console.log("clock_info: addInteractive draw called, itm=" + JSON.stringify(itm));
+    debugger
     options.draw(itm, itm.get(), options);
   }
   function menuShowItem(itm) {
+    debugger
     options.redrawHandler = ()=>drawItem(itm);
     itm.on('redraw', options.redrawHandler);
     itm.uses = (0|itm.uses)+1;
-    console.log("clock_info: addInteractive menuShowItem called, itm=" + JSON.stringify(itm));
     if (itm.uses==1) itm.show(options);
     itm.emit("redraw");
   }
   function menuHideItem(itm) {
+    debugger
     itm.removeListener('redraw',options.redrawHandler);
     delete options.redrawHandler;
     itm.uses--;
-    console.log("clock_info: addInteractive menuHideItem called, itm=" + JSON.stringify(itm));
     if (!itm.uses)
       itm.hide(options);
   }
   // handling for swipe between menu items
   function swipeHandler(lr,ud){
-    console.log("clock_info: addInteractive swipeHandler called, lr=" + JSON.stringify(lr) + " ud=" + JSON.stringify(ud));
+    debugger
     if (!options.focus) return; // ignore if we're not focussed
     var oldMenuItem;
     if (ud) {
-      console.log("clock_info: addInteractive swipeHandler ud block, menu[options.menuA]=" + JSON.stringify(menu[options.menuA]));
       if (menu[options.menuA].items.length==1) return; // 1 item - can't move
       oldMenuItem = menu[options.menuA].items[options.menuB];
       options.menuB += ud;
       if (options.menuB<0) options.menuB = menu[options.menuA].items.length-1;
       if (options.menuB>=menu[options.menuA].items.length) options.menuB = 0;
     } else if (lr) {
-      console.log("clock_info: addInteractive swipeHandler lr block, menu=" + JSON.stringify(menu));
       if (menu.length==1) return; // 1 item - can't move
       oldMenuItem = menu[options.menuA].items[options.menuB];
       do {
@@ -310,6 +298,7 @@ exports.addInteractive = function(menu, options) {
   }
   if (Bangle.prependListener) {Bangle.prependListener("swipe",swipeHandler);} else {Bangle.on("swipe",swipeHandler);}
   const blur = () => {
+    debugger
     options.focus=false;
     Bangle.CLKINFO_FOCUS--;
     const itm = menu[options.menuA].items[options.menuB];
@@ -319,6 +308,7 @@ exports.addInteractive = function(menu, options) {
     if (redraw) options.redraw();
   };
   const focus = () => {
+    debugger
     let redraw = true;
     Bangle.CLKINFO_FOCUS = (0 | Bangle.CLKINFO_FOCUS) + 1;
     if (!options.focus) {
@@ -332,6 +322,7 @@ exports.addInteractive = function(menu, options) {
   let touchHandler, lockHandler;
   if (options.x!==undefined && options.y!==undefined && options.w && options.h) {
     touchHandler = function(_,e) {
+      debugger
       if (e.x<options.x || e.y<options.y ||
           e.x>(options.x+options.w) || e.y>(options.y+options.h)) {
         if (options.focus)
@@ -348,6 +339,7 @@ exports.addInteractive = function(menu, options) {
     Bangle.on("touch",touchHandler);
     if (settings.defocusOnLock) {
       lockHandler = function() {
+        debugger
         if(options.focus)
           blur();
       };
@@ -358,6 +350,7 @@ exports.addInteractive = function(menu, options) {
   menuShowItem(menu[options.menuA].items[options.menuB]);
   // return an object with info that can be used to remove the info
   options.remove = function() {
+    debugger
     save();
     E.removeListener("kill", save);
     Bangle.removeListener("swipe",swipeHandler);
@@ -369,16 +362,21 @@ exports.addInteractive = function(menu, options) {
     delete exports.clockInfos[options.index];
   };
   options.redraw = function() {
+    debugger
     drawItem(menu[options.menuA].items[options.menuB]);
   };
   options.setItem = function (menuA, menuB) {
+    debugger
+    console.log(">>> setItem menuA=" + JSON.stringify(menuA) + " menuB=" + JSON.stringify(menuB));
     if (!menu[menuA] || !menu[menuA].items[menuB] || (options.menuA == menuA && options.menuB == menuB)) {
       // menuA or menuB did not exist or did not change
+      console.log(">>> setItem DID NOT EXIST OR DID NOT CHANGE???");
       return false;
     }
 
     const oldMenuItem = menu[options.menuA].items[options.menuB];
     if (oldMenuItem) {
+      console.log(">>> setItem clearing old menu item " + JSON.stringify(oldMenuItem));
       menuHideItem(oldMenuItem);
       oldMenuItem.removeAllListeners("draw");
     }
