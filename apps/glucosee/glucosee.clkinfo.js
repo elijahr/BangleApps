@@ -19,39 +19,63 @@
   /*
   data will be of the form
   {
-      a: "%alarm",
-      ar: "%arrow",
-      d: "%delta",
-      dl: "%dexcomlabel",
-      g: "%glucose",
-      o: "%obsolete_value",
-      r: "%rate",
-      rl: "%ratelabel",
-      rv: "%rawvalue",
-      s: "%sensorid",
-      t: "%time",
-      td: "%timediff",
-      u: "%unit",
+      a: "%alarm",          // Alarm value (0: no alarm, 6/14: very high, 2/10: high, 3/11: low, 7/15: very low)
+      ar: "%arrow",         // Calculated unicode arrow for the current rate value
+      d: "%delta",          // Delta per minute between the current and the last value (mg/dl or mmol/l)
+      dl: "%dexcomlabel",   // Calculated dexcom specific label for the current rate value
+      g: "%glucose",        // Glucose value in the unit, defined in Juggluco app (mg/dl or mmol/l)
+      o: "%obsolete_value", // Time in minutes (5 or 10) since last value was received (will only be set every 5 or 10 minutes)
+      r: "%rate",           // Rate of change of the glucose value
+      rl: "%ratelabel",     // Calculated label for the current rate value
+      rv: "%rawvalue",      // Glucose value in mg/dl
+      s: "%sensorid",       // Serial number of the current used sensor
+      t: "%time",           // Timestamp in ms since 1.1.1970
+      td: "%timediff",      // Duration in ms between the current and the previous received value
+      u: "%unit",           // Unit of the glucose value, either mg/dl or mmol/l
   }
 
   These values are sent from Gluco Data Handler, via a Tasker action.
+  https://github.com/pachi81/GlucoDataHandler/blob/master/TASKER.md#tasker
   */
 
+  let listenerCount = 0;
+
   function updateData(d) {
+    console.log("glucodata: " + JSON.stringify(d, null, 4));
     data = d;
-    item.emit("redraw");
+    if (d.o) {
+      // Gluco Data Handler sent an "obsolete reading" event
+      obsoleteItem.emit("redraw");
+    }
+    glucoseItem.emit("redraw");
   }
 
-  function getClockInfoImg() {
-    if (data.ar === "↑") return atob("GBiBAAAAAAAYAAA8AAB+AAD/AAH/gAH/gAP/wAfn4AfD4A+B8A8A8B8A+B+B+B/D+B/D+B/D+B/D+A/D8A/D8Af/4AP/wAH/gAB+AA==");
-    else if (data.ar === "↗") return atob("GBiBAAAAAAAYAAA8AAB+AAD/AAH/gAH/gAP/wAf/4Af/4A+A8A/A8B/A+B+A+B8A+B4A+BwH+B4P+A8f8A//8Af/4AP/wAH/gAB+AA==");
-    else if (data.ar === "→") return atob("GBiBAAAAAAAYAAA8AAB+AAD/AAH/gAH/gAP/wAf/4Af74A/58A4A8BwAeBwAOBwAeBwA+B/x+B/7+A//8A//8Af/4AP/wAH/gAB+AA==");
-    else if (data.ar === "↘") return atob("GBiBAAAAAAAYAAA8AAB+AAD/AAH/gAH/gAP/wAe/4Acf4A4P8A4G8B4A+B8A+B+A+B/A+B/A+B/A+A//8A//8Af/4AP/wAH/gAB+AA==");
-    else if (data.ar === "↓") return atob("GBiBAAAAAAAYAAA8AAB+AAD/AAH/gAH/gAP/wAfD4AfD4A/D8A/D8B/D+B/D+B+B+B8A+B+B+B/D+A/n8A//8Af/4AP/wAH/gAB+AA==");
+  function glucoseItemImg() {
+    if (data.ar === "↑↑") return atob("FBiBAAAAAAYAAPAAH4AD/AB/4Af+AP/wH/+B//g//8OfnnDw5ta2XZun3759++ffvj37w//8H/+A//AH/gAfgA==");
+    else if (data.ar === "↑") return atob("FBiBAAAAAAYAAPAAH4AD/AB/4Af+AP/wH/+B//g/D8PgfnyT55mee53n+f5/n+f5/j+fw//8H/+A//AH/gAfgA==");
+    else if (data.ar === "↗") return atob("FBiBAAAAAAYAAPAAH4AD/AB/4Af+AP/wH/+B//g//8PAPn/j5/y+f5vn875+e+fPvj//w//8H/+A//AH/gAfgA==");
+    else if (data.ar === "→") return atob("FBiBAAAAAAYAAPAAH4AD/AB/4Af+AP/wH/+B//g/z8P+fn/z5/8eeAHn/x5/8+f+fj/Pw/38H/+A//AH/gAfgA==");
+    else if (data.ar === "↘") return atob("FBiBAAAAAAYAAPAAH4AD/AB/4Af+AP/wH/+B//g//8PPvn575/O+f5vn/L5/4+fAPj4Hw//8H/+A//AH/gAfgA==");
+    else if (data.ar === "↓") return atob("FBiBAAAAAAYAAPAAH4AD/AB/4Af+AP/wH/+B//g/n8P5/n+f5/n+e53nmZ58k+fgfj8Pw/n8H/+A//AH/gAfgA==");
+    else if (data.ar === "↓↓") return atob("FBiBAAAAAAYAAPAAH4AD/AB/4Af+AP/wH/+B//g//8Pfvn3759++ffuk2bJhamcPDjn5w//8H/+A//AH/gAfgA==");
     return atob("GBiBAAAAAAAYAAA8AAB+AAD/AAH/gAHDgAOBwAcA4AcY4A888A+48B/g+B/h+B/j+B/n+B/n+B//+A/n8A/n8Af/4AP/wAH/gAB+AA==") // missed reading
   }
 
-  const item = {
+  function onShow() {
+    listenerCount += 1;
+    if (listenerCount == 1) {
+      Bangle.on("glucodata", updateData);
+    }
+  }
+
+  function onHide() {
+    listenerCount -= 1;
+    if (listenerCount == 0) {
+      Bangle.removeListener("glucodata", updateData);
+    }
+  }
+
+  const glucoseItem = {
     name: "Glucose",
     hasRange: true,
     get: function () {
@@ -62,22 +86,34 @@
         color: '#f00',
         min: 0,
         max: 500, // - optional
-        img: getClockInfoImg(),
+        img: glucoseItemImg(),
       }
     },
-    show: function () {
-      Bangle.on("glucodata", updateData);
+    show: onShow,
+    hide: onHide,
+    // run: console.log // optional (called when tapped)
+  };
+
+  const obsoleteItem = {
+    name: "Obsolete Reading",
+    hasRange: true,
+    get: function () {
+      return {
+        text: "100 mins since last reading",
+        v: 100,
+        // color: '#f00',
+        min: 0,
+      }
     },
-    hide: function () {
-      Bangle.removeListener("glucodata", updateData);
-    },
+    show: onShow,
+    hide: onHide,
     // run: console.log // optional (called when tapped)
   };
 
   return {
     name: "GlucoSee",
-    img: getClockInfoImg(),
-    items: [item],
+    // img: glucoseItemImg(),
+    items: [glucoseItem, obsoleteItem],
   };
 }) // must not have a semi-colon!
 

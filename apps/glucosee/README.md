@@ -56,6 +56,6 @@ App icon was generated with https://perchance.org/ai-icon-generator.
 
 Droplet icon created by [Good Ware](https://www.flaticon.com/authors/good-ware).
 
-Arrow icons created by [Mohammed Atho'](https://www.flaticon.com/authors/muhammad-atho).
-
 Question mark icon created by [Freepik](https://www.flaticon.com/authors/freepik).
+
+Arrow icons created by [Ilham Fitrotul Hayat](https://www.flaticon.com/authors/ilham-fitrotul-hayat).
