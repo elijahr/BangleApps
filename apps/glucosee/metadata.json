@@ -11,7 +11,7 @@
   "provides_modules": [
     "glucosee.lib"
   ],
-  "dependencies": {"android":"app"},
+  "dependencies": {"android":"app", "clock_info":"module"},
   "interface": "interface.html",
   "data": [
     {"name":"glucosee.data.json"},
