@@ -41,6 +41,10 @@ function updateData(data) {
 
 let listening = false;
 
+function isListening() {
+    return listening;
+}
+
 function startListening() {
     if (!listening) {
         listening = true;
@@ -129,6 +133,7 @@ function getClockInfo() {
 exports.getData = getData;
 exports.updateData = updateData;
 
+exports.isListening = isListening;
 exports.startListening = startListening;
 exports.stopListening = stopListening;
 
