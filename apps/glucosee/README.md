@@ -10,7 +10,7 @@ To use this library you must:
 2. Install [Glucose Data Handler][2].
 3. Install [Tasker][3].
 4. Install the [Glucodata → Bangle.js][1] Tasker project.
-5. Install a clock that supports "clock_info" items, such as [BW Clock](https://banglejs.com/apps/?id=bwclk).
+5. Install a clock that supports "clock_info" items, such as [Pebble++](https://banglejs.com/apps/?id=pebblepp).
 
 [1]: <https://play.google.com/store/apps/details?id=com.espruino.gadgetbridge.banglejs> "Bangle.js GadgetBridge"
 [2]: <https://play.google.com/store/apps/details?id=de.michelinside.glucodatahandler> "Glucose Data Handler"

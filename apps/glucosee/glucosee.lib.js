@@ -25,20 +25,12 @@ The data sent to `callback` looks like:
 These values are sent from Gluco Data Handler, via a Tasker action.
 */
 
-function log(msg) {
-    console.log("glucosee: " + msg.toString());
-}
-
-function error(msg) {
-    console.error("glucosee: " + msg.toString());
-}
-
 function getData() {
     try {
         return require("Storage").readJSON("glucosee.data.json");
     } catch (e) {
         // In case there are no user triggers yet, we show the default...
-        error("error loading data:", e);
+        console.error("glucosee: error loading data:", e);
         return null
     }
 }
@@ -54,18 +46,22 @@ function isListening() {
 }
 
 function startListening() {
-    log("Starting listener")
     if (!listening) {
+        console.info("glucosee: Starting listener");
         listening = true;
-        Bangle.on("glucose", updateData);
+        Bangle.on("glucodata", updateData);
+    } else {
+        console.warn("glucosee: startListening(): Listener already started");
     }
 }
 
 function stopListening() {
     if (listening) {
-        log("Stopping listener")
+        console.info("glucosee: Stopping listener");
         listening = false;
-        Bangle.removeListener("glucose", updateData);
+        Bangle.removeListener("glucodata", updateData);
+    } else {
+        console.warn("glucosee: stopListening(): Listener already stopped");
     }
 }
 
@@ -85,25 +81,16 @@ function loadSettings() {
 
 function updateSettings(newSettings) {
     const settings = getSettings();
-    for (let key in settings) {
-        if (settings.hasOwnProperty(key) && newSettings.hasOwnProperty(key)) {
-            settings[key] = newSettings[key];
-        }
-    }
-    log("Writing to glucosee.settings.json")
+    Object.assign(settings, newSettings);
+    console.info("glucosee: Writing to glucosee.settings.json")
     require("Storage").writeJSON("glucosee.settings.json", settings);
 }
 
 function getSettings() {
     const settings = defaultSettings();
     const saved = loadSettings();
-
-    if (saved) {
-        for (let key in settings) {
-            if (settings.hasOwnProperty(key) && saved.hasOwnProperty(key)) {
-                settings[key] = saved[key];
-            }
-        }
+    if (saved !== null) {
+        Object.assign(settings, saved);
     }
     return settings;
 }
@@ -119,25 +106,27 @@ function getClockInfoImg(data) {
     return missed;
 }
 
+function clockInfoItemGet() {
+    let data = getData();
+    return {
+        text: data ? data.g : "—",
+        // v : 10,
+        // min : 0,
+        // max : 100, - optional
+        img: getClockInfoImg(data),
+    }
+}
+
 function getClockInfo() {
     return {
         name: "Glucosee",
         img: getClockInfoImg(),
         items: [{
             name: "Blood glucose",
-            get: function () {
-                let data = getData();
-                return {
-                    text: data ? data.g : "",
-                    // v : 10,
-                    // min : 0,
-                    // max : 100, - optional
-                    img: getClockInfoImg(data),
-                }
-            },
-            show: function () { },
-            hide: function () { },
-            // run : function() {} optional (called when tapped)
+            get: clockInfoItemGet,
+            show: console.log,
+            hide: console.log,
+            run: console.log // optional (called when tapped)
         }],
     }
 }
