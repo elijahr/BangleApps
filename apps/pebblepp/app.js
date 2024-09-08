@@ -94,7 +94,7 @@ let clockInfoDraw = (itm, info, options) => {
     require("clock_info").drawFilledImage(info.img,midx-24,y,{scale:2});
   }
   g.setFontLECO1976Regular22().setFontAlign(0, 0);
-  var txt = info.toString().toUpperCase();
+  var txt = info.text.toString().toUpperCase();
   if (g.stringWidth(txt) > options.w) // if too big, smaller font
     g.setFontLECO1976Regular14();
   if (g.stringWidth(txt) > options.w) {// if still too big, split to 2 lines
