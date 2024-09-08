@@ -119,10 +119,10 @@ function clockInfoItemGet() {
 
 function getClockInfo() {
     return {
-        name: "Glucosee",
+        name: "GlucoSee",
         img: getClockInfoImg(),
         items: [{
-            name: "Blood glucose",
+            name: "Glucose",
             get: clockInfoItemGet,
             show: console.log,
             hide: console.log,
