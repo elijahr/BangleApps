@@ -1,0 +1,26 @@
+{
+  "id": "glucosee",
+  "name": "GlucoSee",
+  "version": "0.01",
+  "description": "Displays blood glucose information and alarms as a \"clock info\" item.",
+  "icon": "app.png",
+  "type": "app",
+  "tags": "clkinfo,widget,blood glucose,health,diabetes,dexcom,xdrip",
+  "readme": "README.md",
+  "supports": ["BANGLEJS","BANGLEJS2"],
+  "provides_modules": [
+    "glucosee.lib"
+  ],
+  "dependencies": {"android":"app"},
+  "interface": "interface.html",
+  "data": [
+    {"name":"glucosee.data.json"},
+    {"name":"glucosee.settings.json"}
+  ],
+  "storage": [
+    {"name":"glucosee.app.js","url":"glucosee.app.js"},
+    {"name":"glucosee.lib.js","url":"glucosee.lib.js"},
+    {"name":"glucosee.clkinfo.js","url":"glucosee.clkinfo.js"},
+    {"name":"glucosee.img","url":"glucosee.icon.js","evaluate":true}
+  ]
+}

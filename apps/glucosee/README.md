@@ -1,8 +1,8 @@
-# Glucodata library
+# Glucosee
 
-This library handles the passing of blood glucose data and alarms from various devices to your Bangle.js watch.
+This app displays blood glucose information and alarms on your Bangle.js watch, as a "clock info" item.
 
-Installing this library by itself will not display this data to you. For that, install the [Glucose Widget](/BangleApps/?id=glucowidget) or [Glucose Clock](/BangleApps/?id=glucoclock) which use this library.
+A "clock info" and a widget are provided.
 
 ## Installation
 
@@ -39,34 +39,13 @@ The full list of supported devices and features is available on Glucose Data Han
 
 The Tasker profiles listen for the "New glucose value", "Obsolute value", and "Glucose alarm" events provided by Glucose Data Handler. The data provided via those events is assembled into a JavaScript object and sent to the Bangle.js device, via the `com.banglejs.uart.tx` Intent that the GadgetBridge app listens for.
 
-## Example usage
+## Planned features
 
-```javascript
-var glucodata = require('glucodata');
-
-/*
-data will be of the form:
-
-*/
-
-glucodata.onData(function(data) {
-  if (data.o) {
-    // obsolete reading
-    const obsoleteTimeInMinutes = data.o;
-    if (obsoleteTimeInMinutes == 5) {
-      // do something
-    } else if (obsoleteTimeInMinutes == 10) {
-      // do something
-    } else {
-      // shouldn't get here, supposedly
-    }
-  }
-});
-```
+xDrip snooze
 
 ## Requests
 
-Please file any issues on https://github.com/espruino/BangleApps/issues/new?title=[glucodata]%20library
+Please file any issues on https://github.com/espruino/BangleApps/issues/new?title=[glucosee]%20library
 
 ## Creator
 
@@ -74,7 +53,10 @@ Elijah Shaw-Rutschman
 
 ## Attributions
 
-Icons used in this app are from:
+App icon was generated with https://perchance.org/ai-icon-generator.
 
-  - [Diabetes icons created by Muhammad_Usman - Flaticon](https://www.flaticon.com/free-icons/diabetes)
-  - [Refresh icons created by Tempo_doloe - Flaticon](https://www.flaticon.com/free-icons/refresh)
+Droplet icon created by [Good Ware](https://www.flaticon.com/authors/good-ware).
+
+Arrow icons created by [Mohammed Atho'](https://www.flaticon.com/authors/muhammad-atho).
+
+Question mark icon created by [Freepik](https://www.flaticon.com/authors/freepik).
