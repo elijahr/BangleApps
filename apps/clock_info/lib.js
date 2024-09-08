@@ -138,17 +138,12 @@ exports.load = function() {
     try{
       var a = eval(require("Storage").read(fn))();
       var b = menu.find(x => x.name === a.name);
-      if(b) {
-        b.items = b.items.concat(a.items);
-      } else {
-        menu = menu.concat(a);
-      }
+      if(b) b.items = b.items.concat(a.items);
+      else menu = menu.concat(a);
     } catch(e){
       console.log("Could not load clock info "+E.toJS(fn)+": "+e);
     }
   });
-
-  console.log("clock_info: menu=" + JSON.stringify(menu))
 
   // return it all!
   return menu;
@@ -355,16 +350,13 @@ exports.addInteractive = function(menu, options) {
     drawItem(menu[options.menuA].items[options.menuB]);
   };
   options.setItem = function (menuA, menuB) {
-    console.log(">>> setItem menuA=" + JSON.stringify(menuA) + " menuB=" + JSON.stringify(menuB));
     if (!menu[menuA] || !menu[menuA].items[menuB] || (options.menuA == menuA && options.menuB == menuB)) {
       // menuA or menuB did not exist or did not change
-      console.log(">>> setItem DID NOT EXIST OR DID NOT CHANGE???");
       return false;
     }
 
     const oldMenuItem = menu[options.menuA].items[options.menuB];
     if (oldMenuItem) {
-      console.log(">>> setItem clearing old menu item " + JSON.stringify(oldMenuItem));
       menuHideItem(oldMenuItem);
       oldMenuItem.removeAllListeners("draw");
     }

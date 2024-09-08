@@ -72,9 +72,7 @@ let clockInfoG = Graphics.createArrayBuffer(26, 26, 2, {msb:true});
 clockInfoG.transparent = 3;
 clockInfoG.palette = new Uint16Array([g.theme.bg, g.theme.fg, g.toColor("#888"), g.toColor("#888")]);
 let clockInfoItems = require("clock_info").load();
-console.log("pebblepp: clockInfoItems " + JSON.stringify(clockInfoItems))
 let clockInfoDraw = (itm, info, options) => {
-  console.log("pebblepp: clockInfoDraw: itm=" + JSON.stringify(itm) + " info=" + JSON.stringify(info) + " options=" + JSON.stringify(options));
   // itm: the item containing name/hasRange/etc
   // info: data returned from itm.get() containing text/img/etc
   // options: options passed into addInteractive
