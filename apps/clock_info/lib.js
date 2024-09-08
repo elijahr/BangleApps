@@ -230,7 +230,6 @@ exports.addInteractive = function(menu, options) {
     }
   }
   const save = () => {
-    debugger
     // save the currently showing clock_info
     const settings = exports.loadSettings();
     settings.apps[appName] = {a:options.menuA, b:options.menuB};
@@ -241,11 +240,9 @@ exports.addInteractive = function(menu, options) {
   if (options.menuA===undefined) options.menuA = 0;
   if (options.menuB===undefined) options.menuB = Math.min(exports.loadCount, menu[options.menuA].items.length)-1;
   function drawItem(itm) {
-    debugger
     options.draw(itm, itm.get(), options);
   }
   function menuShowItem(itm) {
-    debugger
     options.redrawHandler = ()=>drawItem(itm);
     itm.on('redraw', options.redrawHandler);
     itm.uses = (0|itm.uses)+1;
@@ -253,7 +250,6 @@ exports.addInteractive = function(menu, options) {
     itm.emit("redraw");
   }
   function menuHideItem(itm) {
-    debugger
     itm.removeListener('redraw',options.redrawHandler);
     delete options.redrawHandler;
     itm.uses--;
@@ -298,7 +294,6 @@ exports.addInteractive = function(menu, options) {
   }
   if (Bangle.prependListener) {Bangle.prependListener("swipe",swipeHandler);} else {Bangle.on("swipe",swipeHandler);}
   const blur = () => {
-    debugger
     options.focus=false;
     Bangle.CLKINFO_FOCUS--;
     const itm = menu[options.menuA].items[options.menuB];
@@ -308,7 +303,6 @@ exports.addInteractive = function(menu, options) {
     if (redraw) options.redraw();
   };
   const focus = () => {
-    debugger
     let redraw = true;
     Bangle.CLKINFO_FOCUS = (0 | Bangle.CLKINFO_FOCUS) + 1;
     if (!options.focus) {
@@ -322,7 +316,6 @@ exports.addInteractive = function(menu, options) {
   let touchHandler, lockHandler;
   if (options.x!==undefined && options.y!==undefined && options.w && options.h) {
     touchHandler = function(_,e) {
-      debugger
       if (e.x<options.x || e.y<options.y ||
           e.x>(options.x+options.w) || e.y>(options.y+options.h)) {
         if (options.focus)
@@ -339,7 +332,6 @@ exports.addInteractive = function(menu, options) {
     Bangle.on("touch",touchHandler);
     if (settings.defocusOnLock) {
       lockHandler = function() {
-        debugger
         if(options.focus)
           blur();
       };
@@ -350,7 +342,6 @@ exports.addInteractive = function(menu, options) {
   menuShowItem(menu[options.menuA].items[options.menuB]);
   // return an object with info that can be used to remove the info
   options.remove = function() {
-    debugger
     save();
     E.removeListener("kill", save);
     Bangle.removeListener("swipe",swipeHandler);
@@ -362,11 +353,9 @@ exports.addInteractive = function(menu, options) {
     delete exports.clockInfos[options.index];
   };
   options.redraw = function() {
-    debugger
     drawItem(menu[options.menuA].items[options.menuB]);
   };
   options.setItem = function (menuA, menuB) {
-    debugger
     console.log(">>> setItem menuA=" + JSON.stringify(menuA) + " menuB=" + JSON.stringify(menuB));
     if (!menu[menuA] || !menu[menuA].items[menuB] || (options.menuA == menuA && options.menuB == menuB)) {
       // menuA or menuB did not exist or did not change
