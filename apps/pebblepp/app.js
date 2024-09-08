@@ -72,9 +72,9 @@ let clockInfoG = Graphics.createArrayBuffer(26, 26, 2, {msb:true});
 clockInfoG.transparent = 3;
 clockInfoG.palette = new Uint16Array([g.theme.bg, g.theme.fg, g.toColor("#888"), g.toColor("#888")]);
 let clockInfoItems = require("clock_info").load();
-console.log("pebblepp: clockInfoItems " + clockInfoItems.toString())
+console.log("pebblepp: clockInfoItems " + JSON.stringify(clockInfoItems))
 let clockInfoDraw = (itm, info, options) => {
-  console.log("pebblepp: clockInfoDraw: itm=" + itm.toString() + " info=" + info.toString() + " options=" + options.toString());
+  console.log("pebblepp: clockInfoDraw: itm=" + JSON.stringify(itm) + " info=" + JSON.stringify(info) + " options=" + JSON.stringify(options));
   // itm: the item containing name/hasRange/etc
   // info: data returned from itm.get() containing text/img/etc
   // options: options passed into addInteractive
@@ -94,7 +94,7 @@ let clockInfoDraw = (itm, info, options) => {
     require("clock_info").drawFilledImage(info.img,midx-24,y,{scale:2});
   }
   g.setFontLECO1976Regular22().setFontAlign(0, 0);
-  var txt = info.text.toString().toUpperCase();
+  var txt = info.JSON.stringify(text).toUpperCase();
   if (g.stringWidth(txt) > options.w) // if too big, smaller font
     g.setFontLECO1976Regular14();
   if (g.stringWidth(txt) > options.w) {// if still too big, split to 2 lines
