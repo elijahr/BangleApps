@@ -258,7 +258,6 @@ exports.addInteractive = function(menu, options) {
   }
   // handling for swipe between menu items
   function swipeHandler(lr,ud){
-    debugger
     if (!options.focus) return; // ignore if we're not focussed
     var oldMenuItem;
     if (ud) {
