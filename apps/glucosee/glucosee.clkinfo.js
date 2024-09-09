@@ -52,10 +52,23 @@
     name: "Glucose",
     hasRange: true,
     get: function () {
-      const v = parseInt(data.g) || 0;
+      let value;
+      let text;
+      if (data.g == "%glucose") {
+        value = 0
+        text = 'no data';
+      } else {
+        value = parseInt(data.g);
+        if (isNaN(value)) {
+          value = 0;
+          text = 'no data';
+        } else {
+          text = data.g;
+        }
+      }
       return {
-        text: data.g,
-        v: v,
+        text: text,
+        v: value,
         color: '#f00',
         min: 0,
         max: 500, // - optional
@@ -121,7 +134,7 @@
         const time = parseInt(data.t);
         if (isNaN(time)) {
           color = '#f00';
-          text = '—\nno data';
+          text = '-\nno data';
           value = 0;
         } else {
           value = Date.now() - time;
