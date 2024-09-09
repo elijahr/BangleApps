@@ -141,7 +141,7 @@
       if (listenerCount == 1) {
         Bangle.on("glucodata", updateData);
       }
-      clearTimeout(checkObsoleteTimer);
+      if (checkObsoleteTimer) clearTimeout(checkObsoleteTimer);
       checkObsoleteTimer = setTimeout(checkObsolete, 5 * 60 * 1000);
     },
     hide: function () {
@@ -149,7 +149,8 @@
       if (listenerCount == 0) {
         Bangle.removeListener("glucodata", updateData);
       }
-      clearTimeout(checkObsoleteTimer);
+      if (checkObsoleteTimer) clearTimeout(checkObsoleteTimer);
+      checkObsoleteTimer = undefined;
     },
     // run: console.log // optional (called when tapped)
   };

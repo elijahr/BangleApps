@@ -44,7 +44,7 @@ xDrip snooze
 
 ## Requests
 
-Please file any issues on https://github.com/espruino/BangleApps/issues/new?title=[glucosee]%20library
+Please file any issues at https://github.com/espruino/BangleApps/issues/new?title=[glucosee]%20library
 
 ## Creator
 
