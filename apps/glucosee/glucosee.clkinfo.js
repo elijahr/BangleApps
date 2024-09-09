@@ -90,37 +90,49 @@
     checkObsoleteTimer = setTimeout(checkObsolete, 5 * 60 * 1000);
   }
 
-  function prettyMs ( ms ) {
+  function prettyMs (ms) {
     if (ms > 1000 * 60 * 60 * 24) {
       const days = Math.round(ms / 1000 / 60 / 60 / 24);
-      return days + (days === 1 ? ' day' : ' days');
+      return [days, (days === 1 ? 'day' : 'days')];
     } else if (ms > 1000 * 60 * 60) {
       const hours = Math.round(ms / 1000 / 60 / 60);
-      return hours + (hours === 1 ? ' hr' : ' hrs');
+      return [hours, (hours === 1 ? 'hr' : 'hrs')];
     } else if (ms > 1000 * 60) {
       const mins = Math.round(ms / 1000 / 60);
-      return mins + (mins === 1 ? ' min' : ' mins');
+      return [mins, (mins === 1 ? 'min' : 'mins')];
     } else {
       const secs = Math.round(ms / 1000);
-      return secs + (secs === 1 ? ' sec' : ' secs');
+      return [secs, (secs === 1 ? 'sec' : 'secs')];
     }
   }
 
   const obsoleteItem = {
     name: "Obsolete Reading",
-    hasRange: true,
     get: function () {
-      let ms;
+      let value;
+      let unit;
+      let color;
       if (data.o && data.o !== "%obsolete_value") {
-        ms = parseInt(data.o) * 1000 * 60;
+        value = parseInt(data.o);
+        unit = 'minutes';
+        color = '#f00';
       } else {
-        ms = Date.now() - parseInt(data.t);
+        const pretty = prettyMs(Date.now() - parseInt(data.t));
+        value = pretty[0];
+        unit = pretty[1];
+        if (value <= 5 && unit == 'minutes') {
+          // If less than 5 mins since last reading, black
+          color = '#000';
+        } else {
+          // otherwise red
+          color = '#f00';
+        }
       }
-      const text = prettyMs(ms);
+      const text = value+' '+unit+' ago';
       return {
         text: text,
-        v: parseInt(text.split(" ")[0]),
-        // color: '#f00',
+        v: value,
+        color: color,
         min: 0,
       }
     },
