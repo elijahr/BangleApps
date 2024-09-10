@@ -41,7 +41,6 @@ The Tasker profiles listen for the "New glucose value", "Obsolute value", and "G
 ## Roadmap
 
 - [ ] xDrip snooze via tap or button presses
-- [ ] Store previous data in JSON, load on start
 - [ ] HTTP mode, calling xDrip API on a timer
 - [ ] Use companion app from widbgjs
 

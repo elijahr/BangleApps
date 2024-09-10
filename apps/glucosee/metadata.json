@@ -1,7 +1,7 @@
 {
   "id": "glucosee",
   "name": "GlucoSee",
-  "version": "0.12",
+  "version": "0.13",
   "description": "Displays blood glucose information and alarms as a \"clock info\" item.",
   "icon": "app.png",
   "type": "clkinfo",
@@ -11,5 +11,9 @@
   "dependencies": {"android":"app","clock_info":"module"},
   "storage": [
     {"name":"glucosee.clkinfo.js","url":"glucosee.clkinfo.js"}
+  ],
+  "data": [
+    {"name":"glucosee.settings.json"},
+    {"name":"glucosee.data.json"}
   ]
 }

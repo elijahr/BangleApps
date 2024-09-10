@@ -1,5 +1,5 @@
 (function () {
-  console.info("glucosee: setting up clkinfo");
+  const storage = require("Storage");
 
   /*
   These values are sent from Gluco Data Handler, via a Tasker action.
@@ -8,7 +8,7 @@
   Tasker sends them all as strings.
 
   */
-  let data = {
+  let data = storage.readJSON('glucosee.data.json', 1) || {
     a: "%alarm",          // Alarm value (0: no alarm, 6/14: very high, 2/10: high, 3/11: low, 7/15: very low)
     ar: "%arrow",         // Calculated unicode arrow for the current rate value
     d: "%delta",          // Delta per minute between the current and the last value (mg/dl or mmol/l)
@@ -24,17 +24,50 @@
     u: "%unit",           // Unit of the glucose value, either mg/dl or mmol/l
   };
 
-  let listenerCount = 0;
+  let glucoseItemListening = false;
+  let obsoleteItemListening = false;
+  let updateTimer;
+  let checkObsoleteTimer;
 
-  function updateData(d) {
-    console.log("glucodata: " + JSON.stringify(d, null, 4));
-    data = d;
-    if (d.o && d.o !== "%obsolete_value") {
-      // The same Tasker task handles both the "glucose data" and "obsolete reading" events from Gluco Data Handler.
-      // The data is mostly the same except that %obsolete_value won't be interpolated for a glucose reading.
+  function checkObsolete() {
+    // Gluco Data Handler does its own obsolete value checking, and sends us an event, but we need to
+    // check if the data on the watch is obsolete.
+    if (Date.now() - parseInt(data.t) > 5 * 60 * 1000) {
+      // Data is more than 5 mins old, store the # of minutes for display
+      data.o = Math.round((Date.now() - parseInt(data.t)) / 1000 / 60).toString();
       obsoleteItem.emit("redraw");
     }
-    glucoseItem.emit("redraw");
+    checkObsoleteTimer = setTimeout(checkObsolete, 5 * 60 * 1000);
+  }
+
+  function updateData(d) {
+    data = d;
+    if (updateTimer) clearTimeout(updateTimer);
+    updateTimer = setTimeout(function() {
+      if (glucoseItemListening) glucoseItem.emit("redraw");
+      if (obsoleteItemListening) {
+        obsoleteItem.emit("redraw");
+        if (checkObsoleteTimer) clearTimeout(checkObsoleteTimer);
+        checkObsoleteTimer = setTimeout(checkObsolete, 5 * 60 * 1000);
+      }
+      storage.write('glucosee.data.json', data);
+    }, 1000); // debounce for 1s
+  }
+
+  function prettyMs (ms) {
+    if (ms > 1000 * 60 * 60 * 24) {
+      const days = Math.round(ms / 1000 / 60 / 60 / 24);
+      return days + 'd';
+    } else if (ms > 1000 * 60 * 60) {
+      const hours = Math.round(ms / 1000 / 60 / 60);
+      return hours + 'h';
+    } else if (ms > 1000 * 60) {
+      const mins = Math.round(ms / 1000 / 60);
+      return mins + 'm';
+    } else {
+      const secs = Math.round(ms / 1000);
+      return secs + 's';
+    }
   }
 
   function glucoseItemImg() {
@@ -75,49 +108,16 @@
         img: glucoseItemImg(),
       }
     },
-    show: function () {
-      listenerCount += 1;
-      if (listenerCount == 1) {
-        Bangle.on("glucodata", updateData);
-      }
+    show: function() {
+      if (!obsoleteItemListening) Bangle.on("glucodata", updateData);
+      glucoseItemListening = true;
     },
-    hide: function () {
-      listenerCount -= 1;
-      if (listenerCount == 0) {
-        Bangle.removeListener("glucodata", updateData);
-      }
+    hide: function() {
+      if (!obsoleteItemListening) Bangle.removeListener("glucodata", updateData);
+      glucoseItemListening = false;
     },
     // run: console.log // optional (called when tapped)
   };
-
-  let checkObsoleteTimer;
-
-  function checkObsolete() {
-    // Gluco Data Handler does its own obsolete value checking, and sends us an event, but we need to
-    // check if the data on the watch is obsolete.
-    if (Date.now() - parseInt(data.t) > 5 * 60 * 1000) {
-      // Data is more than 5 mins old, store the # of minutes for display
-      data.o = Math.round((Date.now() - parseInt(data.t)) / 1000 / 60).toString();
-      obsoleteItem.emit("redraw");
-    }
-    checkObsoleteTimer = setTimeout(checkObsolete, 5 * 60 * 1000);
-  }
-
-  function prettyMs (ms) {
-    if (ms > 1000 * 60 * 60 * 24) {
-      const days = Math.round(ms / 1000 / 60 / 60 / 24);
-      return days + 'd';
-    } else if (ms > 1000 * 60 * 60) {
-      const hours = Math.round(ms / 1000 / 60 / 60);
-      return hours + 'h';
-    } else if (ms > 1000 * 60) {
-      const mins = Math.round(ms / 1000 / 60);
-      return mins + 'm';
-    } else {
-      const secs = Math.round(ms / 1000);
-      return secs + 's';
-    }
-  }
 
   const obsoleteItem = {
     name: /*LANG*/"Obsolete Reading",
@@ -128,13 +128,13 @@
       if (data.o && data.o !== "%obsolete_value") {
         const mins = parseInt(data.o);
         value = mins * 1000 * 60;
-        text = value + 'm' +/*LANG*/'ago';
+        text = value + 'm' +/*LANG*/' ago';
         color = '#f00';
       } else {
         const time = parseInt(data.t);
         if (isNaN(time)) {
           color = '#f00';
-          text = /*LANG*/'-\nno data';
+          text = /*LANG*/'no data';
           value = 0;
         } else {
           value = Date.now() - time;
@@ -156,21 +156,13 @@
         min: 0,
       }
     },
-    show: function () {
-      listenerCount += 1;
-      if (listenerCount == 1) {
-        Bangle.on("glucodata", updateData);
-      }
-      if (checkObsoleteTimer) clearTimeout(checkObsoleteTimer);
-      checkObsoleteTimer = setTimeout(checkObsolete, 5 * 60 * 1000);
+    show: function() {
+      if (!glucoseItemListening) Bangle.on("glucodata", updateData);
+      obsoleteItemListening = true;
     },
-    hide: function () {
-      listenerCount -= 1;
-      if (listenerCount == 0) {
-        Bangle.removeListener("glucodata", updateData);
-      }
-      if (checkObsoleteTimer) clearTimeout(checkObsoleteTimer);
-      checkObsoleteTimer = undefined;
+    hide: function() {
+      if (!glucoseItemListening) Bangle.removeListener("glucodata", updateData);
+      obsoleteItemListening = false;
     },
     // run: console.log // optional (called when tapped)
   };
