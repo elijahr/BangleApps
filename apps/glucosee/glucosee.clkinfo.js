@@ -28,6 +28,7 @@
   let obsoleteItemListening = false;
   let updateTimer;
   let checkObsoleteTimer;
+  let reDrawObsoleteTimer;
 
   function checkObsolete() {
     // Gluco Data Handler does its own obsolete value checking, and sends us an event, but we need to
@@ -38,6 +39,11 @@
       obsoleteItem.emit("redraw");
     }
     checkObsoleteTimer = setTimeout(checkObsolete, 5 * 60 * 1000);
+  }
+
+  function reDrawObsolete() {
+    obsoleteItem.emit("redraw");
+    setTimeout(reDrawObsolete, 1000*60);
   }
 
   function updateData(d) {
@@ -65,8 +71,7 @@
       const mins = Math.round(ms / 1000 / 60);
       return mins + 'm';
     } else {
-      const secs = Math.round(ms / 1000);
-      return secs + 's';
+      return '<1m';
     }
   }
 
@@ -159,10 +164,13 @@
     show: function() {
       if (!glucoseItemListening) Bangle.on("glucodata", updateData);
       obsoleteItemListening = true;
+      if (reDrawObsoleteTimer) clearTimeout(reDrawObsoleteTimer);
+      reDrawObsoleteTimer = setTimeout(reDrawObsoleteTimer, 1000*60);
     },
     hide: function() {
       if (!glucoseItemListening) Bangle.removeListener("glucodata", updateData);
       obsoleteItemListening = false;
+      if (reDrawObsoleteTimer) clearTimeout(reDrawObsoleteTimer)
     },
     // run: console.log // optional (called when tapped)
   };
