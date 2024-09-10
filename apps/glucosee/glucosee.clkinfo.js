@@ -128,7 +128,7 @@
       if (data.o && data.o !== "%obsolete_value") {
         const mins = parseInt(data.o);
         value = mins * 1000 * 60;
-        text = value + 'm' +/*LANG*/' ago';
+        text = value + 'm ' + /*LANG*/'ago';
         color = '#f00';
       } else {
         const time = parseInt(data.t);
