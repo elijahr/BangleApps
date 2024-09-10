@@ -63,7 +63,7 @@
           value = 0;
           text = 'no data';
         } else {
-          text = data.g;
+          text = Math.round(value).toString();
         }
       }
       return {
@@ -106,21 +106,22 @@
   function prettyMs (ms) {
     if (ms > 1000 * 60 * 60 * 24) {
       const days = Math.round(ms / 1000 / 60 / 60 / 24);
-      return days + (days === 1 ? '\nday ago' : '\ndays ago');
+      return days + 'd';
     } else if (ms > 1000 * 60 * 60) {
       const hours = Math.round(ms / 1000 / 60 / 60);
-      return hours + (hours === 1 ? '\nhr ago' : '\nhrs ago');
+      return hours + 'h';
     } else if (ms > 1000 * 60) {
       const mins = Math.round(ms / 1000 / 60);
-      return mins + (mins === 1 ? '\nmin ago' : '\nmins ago');
+      return mins + 'm';
     } else {
       const secs = Math.round(ms / 1000);
-      return secs + (secs === 1 ? '\nsec ago' : '\nsecs ago');
+      return secs + 's';
     }
   }
 
   const obsoleteItem = {
-    name: "Obsolete Reading",
+    name: /*LANG*/"Obsolete Reading",
+    img: atob("FBiBAAAAAAYAAPAAH4AD/AB/4Af+AP/wH/+B//g3/sL/9m37Ztm2aw9m2bZt+2f//jf+w//8H/+A//AH/gAfgA=="),
     get: function () {
       let text;
       let value;
@@ -128,17 +129,17 @@
       if (data.o && data.o !== "%obsolete_value") {
         const mins = parseInt(data.o);
         value = mins * 1000 * 60;
-        text = value + '\nmins ago';
+        text = value + 'm' +/*LANG*/'ago';
         color = '#f00';
       } else {
         const time = parseInt(data.t);
         if (isNaN(time)) {
           color = '#f00';
-          text = '-\nno data';
+          text = /*LANG*/'-\nno data';
           value = 0;
         } else {
           value = Date.now() - time;
-          text = prettyMs(value);
+          text = prettyMs(value) + /*LANG*/' ago';
           if (value <= 1000 * 60 * 5) {
             // If less than 5 mins since last reading, black
             color = '#000';

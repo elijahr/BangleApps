@@ -38,9 +38,12 @@ The full list of supported devices and features is available on Glucose Data Han
 
 The Tasker profiles listen for the "New glucose value", "Obsolute value", and "Glucose alarm" events provided by Glucose Data Handler. The data provided via those events is assembled into a JavaScript object and sent to the Bangle.js device, via the `com.banglejs.uart.tx` Intent that the GadgetBridge app listens for.
 
-## Planned features
+## Roadmap
 
-xDrip snooze
+- [ ] xDrip snooze via tap or button presses
+- [ ] Store previous data in JSON, load on start
+- [ ] HTTP mode, calling xDrip API on a timer
+- [ ] Use companion app from widbgjs
 
 ## Requests
 
@@ -56,6 +59,6 @@ App icon was generated with https://perchance.org/ai-icon-generator.
 
 Droplet icon created by [Good Ware](https://www.flaticon.com/authors/good-ware).
 
-Question mark icon created by [Freepik](https://www.flaticon.com/authors/freepik).
+Question mark & radio signal icons created by [Freepik](https://www.flaticon.com/authors/freepik).
 
 Arrow icons created by [Ilham Fitrotul Hayat](https://www.flaticon.com/authors/ilham-fitrotul-hayat).
