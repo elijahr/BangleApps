@@ -121,7 +121,6 @@
 
   const obsoleteItem = {
     name: /*LANG*/"Obsolete Reading",
-    img: atob("FBiBAAAAAAYAAPAAH4AD/AB/4Af+AP/wH/+B//g3/sL/9m37Ztm2aw9m2bZt+2f//jf+w//8H/+A//AH/gAfgA=="),
     get: function () {
       let text;
       let value;
@@ -151,6 +150,7 @@
       }
       return {
         text: text,
+        img: atob("FBiBAAAAAAYAAPAAH4AD/AB/4Af+AP/wH/+B//g3/sL/9m37Ztm2aw9m2bZt+2f//jf+w//8H/+A//AH/gAfgA=="),
         v: value, // ms
         color: color,
         min: 0,
