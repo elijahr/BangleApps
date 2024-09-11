@@ -119,7 +119,7 @@
     },
     hide: function() {
       if (!obsoleteItemListening) Bangle.removeListener("glucodata", updateData);
-      glucoseItemListening = false;
+      glucoseItemListening = undefined;
     },
     // run: console.log // optional (called when tapped)
   };
@@ -165,12 +165,15 @@
       if (!glucoseItemListening) Bangle.on("glucodata", updateData);
       obsoleteItemListening = true;
       if (reDrawObsoleteTimer) clearTimeout(reDrawObsoleteTimer);
-      reDrawObsoleteTimer = setTimeout(reDrawObsoleteTimer, 1000*60);
+      reDrawObsoleteTimer = setTimeout(reDrawObsolete, 1000*60);
     },
     hide: function() {
       if (!glucoseItemListening) Bangle.removeListener("glucodata", updateData);
-      obsoleteItemListening = false;
-      if (reDrawObsoleteTimer) clearTimeout(reDrawObsoleteTimer)
+      obsoleteItemListening = undefined;
+      if (reDrawObsoleteTimer) {
+        clearTimeout(reDrawObsoleteTimer);
+        reDrawObsoleteTimer = undefined;
+      }
     },
     // run: console.log // optional (called when tapped)
   };

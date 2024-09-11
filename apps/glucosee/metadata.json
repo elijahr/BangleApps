@@ -1,7 +1,7 @@
 {
   "id": "glucosee",
   "name": "GlucoSee",
-  "version": "0.15",
+  "version": "0.16",
   "description": "Displays blood glucose information and alarms as a \"clock info\" item.",
   "icon": "app.png",
   "type": "clkinfo",
