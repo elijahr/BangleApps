@@ -1,0 +1,10 @@
+{
+  "app": "_testvisualregression",
+  "tests": [{
+    "description": "Visual regression baseline test",
+    "steps": [
+      {"t": "cmd", "js": "g.clear();g.setColor('#ff0000');g.fillRect(10,10,50,50)"},
+      {"t": "screenshot", "name": "simple-rect", "text": "Check red rectangle rendered"}
+    ]
+  }]
+}

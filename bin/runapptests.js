@@ -3,24 +3,16 @@
 
 This allows us to test apps using the Bangle.js emulator
 
-IT IS UNFINISHED
-
 It searches for `test.json` in each app's directory and will
 run them in sequence.
 
-The return code is the number of failed tests.
-
-TODO:
-
-* more code to test with
-* run tests that we have found and loaded (currently we just use TEST)
-* documentation
-* actual tests
-* detecting 'Uncaught Error'
-* logging of success/fail
-* ...
+The return code is 0 if all tests pass, 1 otherwise.
 
 */
+const fs = require('fs');
+const path = require('path');
+const { PNG } = require('pngjs');
+const pixelmatch = require('pixelmatch');
 
 const DEMOAPP = {
   "id":"demoappfortestformat",
@@ -128,6 +120,107 @@ function getValue(js){
   if (verbose)
     console.log(`  GOT \`${result}\``);
   return JSON.parse(result);
+}
+
+function writePng(filepath, data, width, height) {
+  return new Promise((resolve, reject) => {
+    const png = new PNG({ width, height });
+    png.data = data;
+    const writeStream = fs.createWriteStream(filepath);
+    png.pack().pipe(writeStream);
+    writeStream.on('finish', resolve);
+    writeStream.on('error', reject);
+  });
+}
+
+async function compareScreenshot(step, appId) {
+  // Validate name property exists before regex
+  if (!step.name || typeof step.name !== 'string') {
+    console.log(`> FAIL: Screenshot step requires a "name" property`);
+    return { passed: false, error: 'Missing name property' };
+  }
+
+  const name = step.name;
+
+  // Validate name format
+  if (!/^[a-zA-Z0-9_-]+$/.test(name)) {
+    console.log(`> FAIL: Invalid screenshot name "${name}" - must match /^[a-zA-Z0-9_-]+$/`);
+    return { passed: false, error: 'Invalid name format' };
+  }
+
+  // Validate threshold (default to 0.0 if invalid)
+  let threshold = step.threshold ?? 0.0;
+  if (typeof threshold !== 'number' || threshold < 0 || threshold > 1 || !Number.isFinite(threshold)) {
+    threshold = 0.0;
+  }
+
+  const baselinePath = path.join(APP_DIR, appId, 'test', 'baseline', `${name}.png`);
+  const diffDir = path.join(BASE_DIR, 'logs', 'visual-regression', appId);
+  const diffPath = path.join(diffDir, `${name}-diff.png`);
+  const actualPath = path.join(diffDir, `${name}-actual.png`);
+
+  console.log(`> SCREENSHOT "${name}"`, step.text ? `- ${step.text}` : '');
+
+  // Get current screenshot from emulator
+  const rgba32 = emu.getScreenshot();
+  const width = emu.GFX_WIDTH;
+  const height = emu.GFX_HEIGHT;
+  const actualBuffer = Buffer.from(rgba32.buffer);
+
+  // Check if baseline exists
+  if (!fs.existsSync(baselinePath)) {
+    // Auto-create baseline
+    console.log(`> BASELINE CREATED: ${baselinePath}`);
+    fs.mkdirSync(path.dirname(baselinePath), { recursive: true });
+    await writePng(baselinePath, actualBuffer, width, height);
+    return { passed: true, created: true };
+  }
+
+  // Load baseline
+  let baseline;
+  try {
+    baseline = PNG.sync.read(fs.readFileSync(baselinePath));
+  } catch (err) {
+    console.log(`> FAIL: Could not read baseline: ${err.message}`);
+    return { passed: false, error: err.message };
+  }
+
+  // Dimension check
+  if (baseline.width !== width || baseline.height !== height) {
+    console.log(`> FAIL: Dimension mismatch - baseline ${baseline.width}x${baseline.height}, actual ${width}x${height}`);
+    return { passed: false, error: 'Dimension mismatch' };
+  }
+
+  // Compare
+  const diff = new PNG({ width, height });
+  const numDiffPixels = pixelmatch(
+    baseline.data,
+    actualBuffer,
+    diff.data,
+    width,
+    height,
+    { threshold: 0.0 }
+  );
+
+  const totalPixels = width * height;
+  const diffRatio = numDiffPixels / totalPixels;
+
+  if (diffRatio <= threshold) {
+    if (verbose) {
+      console.log(`> OK: ${numDiffPixels} pixels differ (${(diffRatio * 100).toFixed(2)}%)`);
+    }
+    return { passed: true, diffPixels: numDiffPixels, diffRatio };
+  }
+
+  // Failure - write artifacts
+  console.log(`> FAIL: ${numDiffPixels} pixels differ (${(diffRatio * 100).toFixed(2)}% > ${(threshold * 100).toFixed(2)}%)`);
+  fs.mkdirSync(diffDir, { recursive: true });
+  await writePng(diffPath, Buffer.from(diff.data), width, height);
+  await writePng(actualPath, actualBuffer, width, height);
+  console.log(`> Diff saved to: ${diffPath}`);
+  console.log(`> Actual saved to: ${actualPath}`);
+
+  return { passed: false, diffPixels: numDiffPixels, diffRatio };
 }
 
 function assertArray(step){
@@ -315,8 +408,9 @@ function runStep(step, subtest, test, state){
       });
       break;
     case "screenshot" :
-      p = p.then(() => {
-        console.log(`> Compare screenshots - UNIMPLEMENTED`);
+      p = p.then(async () => {
+        const result = await compareScreenshot(step, test.app);
+        state.ok &= result.passed;
       });
       break;
     case "saveMemoryUsage" :

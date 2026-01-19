@@ -48,6 +48,9 @@ jobs:
           git fetch --depth 1 origin a62beceec317f6744e58aaa2d1a19447d9458035
           git checkout a62beceec317f6744e58aaa2d1a19447d9458035
 
+      - name: Install dependencies
+        run: npm ci
+
       - name: Detect changed apps
         id: detect-apps
         run: |

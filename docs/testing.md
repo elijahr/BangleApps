@@ -73,6 +73,7 @@ Create a `test.json` file in your app's directory (e.g., `apps/myapp/test.json`)
 | `saveMemoryUsage` | Store current memory | `{"t":"saveMemoryUsage"}` |
 | `checkMemoryUsage` | Compare to stored memory | `{"t":"checkMemoryUsage"}` |
 | `upload` | Upload a module | `{"t":"upload", "file": "modules/foo.js", "as": "foo"}` |
+| `screenshot` | Compare visual output | `{"t":"screenshot", "name": "myview", "threshold": 0.0}` |
 
 ### Assert Conditions
 
@@ -89,6 +90,45 @@ For `assertArray` steps:
 
 - `notEmpty` - Array has elements
 - `undefinedOrEmpty` - Array is undefined or empty
+
+### Screenshot Step
+
+The `screenshot` step captures the current emulator display and compares it against a baseline image.
+
+```json
+{"t": "screenshot", "name": "overlay-visible", "threshold": 0.0, "text": "Check overlay rendered"}
+```
+
+| Property | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `name` | Yes | - | Baseline filename (alphanumeric, hyphens, underscores) |
+| `threshold` | No | `0.0` | Allowed diff ratio (0.0 = exact match, 0.01 = 1% pixels may differ) |
+| `text` | No | - | Description for logging |
+
+**File locations:**
+- Baselines: `apps/{app}/test/baseline/{name}.png`
+- Diff artifacts: `logs/visual-regression/{app}/{name}-diff.png`
+- Actual screenshots: `logs/visual-regression/{app}/{name}-actual.png`
+
+**Behavior:**
+- If baseline doesn't exist, it's created automatically and the test passes
+- On mismatch, diff and actual images are written to `logs/` for debugging
+- Baselines should be committed to the repository for CI reproducibility
+
+**Example:**
+
+```json
+{
+  "app": "myapp",
+  "tests": [{
+    "description": "Visual regression test",
+    "steps": [
+      {"t": "cmd", "js": "g.clear();g.fillRect(10,10,50,50)"},
+      {"t": "screenshot", "name": "rectangle", "text": "Check rectangle rendered"}
+    ]
+  }]
+}
+```
 
 ### Example: Testing GPS Power Management
 
