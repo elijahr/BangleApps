@@ -134,7 +134,7 @@ function showList() {
     CALENDAR = CALENDAR.filter(ev=>ev.timestamp + ev.durationInSeconds > now/1000);
   }
   if(CALENDAR.length == 0) {
-    E.showMessage(/*LANG*/"No events");
+    E.showAlert(/*LANG*/"No events").then(() => load());
     return;
   }
   E.showScroller({
