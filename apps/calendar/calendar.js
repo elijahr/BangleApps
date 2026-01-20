@@ -350,8 +350,7 @@ const setUI = function() {
         }
       };
       if (filteredEvents.length === 0) {
-        // undefined value creates a non-selectable menu item (Bangle.js convention)
-        menu[/*LANG*/"No events"] = undefined;
+        menu[/*LANG*/"No events"] = () => {};
       } else {
         const usedLabels = {};
         filteredEvents.forEach(evt => {
