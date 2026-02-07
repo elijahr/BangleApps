@@ -118,6 +118,21 @@ function getSanitizedLastLine(){
   return emu.getLastLine().replaceAll("\r", "");
 }
 
+// Wait for emulator to finish processing by checking for response
+// The emulator outputs "=<value>" or "=undefined" after each statement
+function waitForResponse(maxIterations = 50) {
+  const responsePrefixes = ['=', 'Uncaught', 'ERROR'];
+  for (let i = 0; i < maxIterations; i++) {
+    emu.idle();
+    const line = getSanitizedLastLine();
+    // Check if we got a response (starts with = or is an error)
+    if (responsePrefixes.some(prefix => line.startsWith(prefix))) {
+      return line;
+    }
+  }
+  return null;
+}
+
 function ERROR(s) {
   console.error(s);
   process.exit(1);
@@ -187,6 +202,7 @@ function wrap(func, id){
   }(${func}));\n`;
 
   emu.tx(wrappingCode);
+  waitForResponse();
 }
 
 function assertCall(step){
@@ -241,12 +257,14 @@ function runStep(step, subtest, test, state){
       p = p.then(() => {
         console.log(`> LOADING FILE "${step.fn}"`);
         emu.tx(`load(${JSON.stringify(step.fn)})\n`);
+        waitForResponse();
       });
       break;
     case "cmd" :
       p = p.then(() => {
         console.log(`> SENDING JS \`${step.js}\``, step.text ? "- " + step.text : "");
         emu.tx(`${step.js}\n`);
+        waitForResponse();
       });
       break;
     case "wrap" :
@@ -266,6 +284,7 @@ function runStep(step, subtest, test, state){
         }, step.obj || {});
         console.log(`> GB with`, verbose ? "event " + JSON.stringify(obj, null, null) : "type " + obj.t);
         emu.tx(`GB(${JSON.stringify(obj)})\n`);
+        waitForResponse();
       });
       break;
     case "emit" :
@@ -276,6 +295,7 @@ function runStep(step, subtest, test, state){
         console.log(`> EMIT "${step.event}" on ${parent} with parameters ${JSON.stringify(step.paramsArray, null, null)}`);
         
         emu.tx(`${parent}.emit.apply(${parent}, ${args})\n`);
+        waitForResponse();
       });
       break;
     case "eval" :
@@ -302,9 +322,13 @@ function runStep(step, subtest, test, state){
       });
       break;
     case "resetCall":
-      console.log(`> RESET CALL ${step.id}`, step.text ? "- " + step.text : "");
-      emu.tx(`global.APPTESTS.funcCalls.${step.id} = 0;\n`);
-      emu.tx(`global.APPTESTS.funcArgs.${step.id} = undefined;\n`);
+      p = p.then(() => {
+        console.log(`> RESET CALL ${step.id}`, step.text ? "- " + step.text : "");
+        emu.tx(`global.APPTESTS.funcCalls.${step.id} = 0;\n`);
+        waitForResponse();
+        emu.tx(`global.APPTESTS.funcArgs.${step.id} = undefined;\n`);
+        waitForResponse();
+      });
       break;
     case "assertCall":
       p = p.then(() => {
@@ -345,14 +369,17 @@ function runStep(step, subtest, test, state){
         emu.tx(`for(let c of global["\xff"].timers){
           if(c) c.time -= ${step.ms * 1000};
         }\n`);
+        waitForResponse();
       });
       break;
     case "upload" :
       p = p.then(()=>{
         console.log("> UPLOADING" + (step.load ? " AND LOADING" : ""), step.file);
         emu.tx(AppInfo.getFileUploadCommands(step.as, require("fs").readFileSync(BASE_DIR + "/" + step.file).toString()));
+        waitForResponse();
         if (step.load){
           emu.tx(`\x10load("${step.as}")\n`);
+          waitForResponse();
         }
       });
       break;
