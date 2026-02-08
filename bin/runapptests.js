@@ -129,20 +129,18 @@ function isResponseLine(line) {
 // Wait for emulator to finish processing by running idle loop
 // For commands that produce a response (=value), checks for that
 // For other operations, just ensures idle loop has run enough times
+// Returns true if response received, false if timed out
 function waitForResponse(maxIterations = 50) {
-  let lastLine = '';
   for (let i = 0; i < maxIterations; i++) {
     emu.idle();
     const line = getSanitizedLastLine();
     if (isResponseLine(line)) {
       emuReady = true;
-      return line;
+      return true;
     }
-    lastLine = line;
   }
-  // Even if we didn't see a response line, mark as ready after running idle
-  emuReady = true;
-  return lastLine;
+  // Timed out waiting for response - don't mark as ready
+  return false;
 }
 
 // Mark emulator as busy (command sent, waiting for response)
@@ -156,20 +154,21 @@ function txAndWait(data) {
     markBusy();
   }
   emu.tx(data);
-  waitForResponse();
+  if (!waitForResponse()) {
+    console.warn("txAndWait: timed out waiting for response");
+  }
 }
 
 // Factory reset with safety checks
 function safeFactoryReset() {
   // Ensure emulator is ready before resetting (previous commands complete)
   if (!emuReady) {
-    waitForResponse();
-  }
-  if (!emuReady) {
-    throw new Error(
-      "safeFactoryReset() called while emulator is still processing. " +
-      "Previous commands did not complete in time."
-    );
+    if (!waitForResponse()) {
+      throw new Error(
+        "safeFactoryReset() called while emulator is still processing. " +
+        "Previous commands did not complete in time."
+      );
+    }
   }
   
   emu.factoryReset();
@@ -185,7 +184,9 @@ function ERROR(s) {
 function getValue(js){
   if(verbose)
     console.log(`> GETTING VALUE FOR \`${js}\``);
+  markBusy();
   emu.tx(`\x10print(JSON.stringify(${js}))\n`);
+  waitForResponse();
   var result = getSanitizedLastLine();
   
   if (verbose)
@@ -245,8 +246,7 @@ function wrap(func, id){
     };
   }(${func}));\n`;
 
-  emu.tx(wrappingCode);
-  waitForResponse();
+  txAndWait(wrappingCode);
 }
 
 function assertCall(step){
@@ -300,15 +300,13 @@ function runStep(step, subtest, test, state){
     case "load" :
       p = p.then(() => {
         console.log(`> LOADING FILE "${step.fn}"`);
-        emu.tx(`load(${JSON.stringify(step.fn)})\n`);
-        waitForResponse();
+        txAndWait(`load(${JSON.stringify(step.fn)})\n`);
       });
       break;
     case "cmd" :
       p = p.then(() => {
         console.log(`> SENDING JS \`${step.js}\``, step.text ? "- " + step.text : "");
-        emu.tx(`${step.js}\n`);
-        waitForResponse();
+        txAndWait(`${step.js}\n`);
       });
       break;
     case "wrap" :
@@ -327,8 +325,7 @@ function runStep(step, subtest, test, state){
           body:'body'
         }, step.obj || {});
         console.log(`> GB with`, verbose ? "event " + JSON.stringify(obj, null, null) : "type " + obj.t);
-        emu.tx(`GB(${JSON.stringify(obj)})\n`);
-        waitForResponse();
+        txAndWait(`GB(${JSON.stringify(obj)})\n`);
       });
       break;
     case "emit" :
@@ -338,14 +335,15 @@ function runStep(step, subtest, test, state){
         let args = JSON.stringify([step.event].concat(step.paramsArray));
         console.log(`> EMIT "${step.event}" on ${parent} with parameters ${JSON.stringify(step.paramsArray, null, null)}`);
         
-        emu.tx(`${parent}.emit.apply(${parent}, ${args})\n`);
-        waitForResponse();
+        txAndWait(`${parent}.emit.apply(${parent}, ${args})\n`);
       });
       break;
     case "eval" :
       p = p.then(() => {
         console.log(`> EVAL \`${step.js}\``);
+        markBusy();
         emu.tx(`\x10print(JSON.stringify(${step.js}))\n`);
+        waitForResponse();
         var result = getSanitizedLastLine();
         var expected = JSON.stringify(step.eq);
         if (verbose)
@@ -368,10 +366,8 @@ function runStep(step, subtest, test, state){
     case "resetCall":
       p = p.then(() => {
         console.log(`> RESET CALL ${step.id}`, step.text ? "- " + step.text : "");
-        emu.tx(`global.APPTESTS.funcCalls.${step.id} = 0;\n`);
-        waitForResponse();
-        emu.tx(`global.APPTESTS.funcArgs.${step.id} = undefined;\n`);
-        waitForResponse();
+        txAndWait(`global.APPTESTS.funcCalls.${step.id} = 0;\n`);
+        txAndWait(`global.APPTESTS.funcArgs.${step.id} = undefined;\n`);
       });
       break;
     case "assertCall":
@@ -391,14 +387,18 @@ function runStep(step, subtest, test, state){
       break;
     case "saveMemoryUsage" :
       p = p.then(() => {
+        markBusy();
         emu.tx(`\x10print(process.memory().usage)\n`);
+        waitForResponse();
         subtest.memUsage = parseInt(getSanitizedLastLine());
         console.log("> SAVED MEMORY USAGE", subtest.memUsage);
       });
       break;
     case "checkMemoryUsage" :
       p = p.then(() => {
+        markBusy();
         emu.tx(`\x10print(process.memory().usage)\n`);
+        waitForResponse();
         var memUsage =  parseInt(getSanitizedLastLine());
         console.log("> COMPARE MEMORY USAGE", memUsage);
         if (memUsage > subtest.memUsage) {
@@ -410,18 +410,17 @@ function runStep(step, subtest, test, state){
     case "advanceTimers" :
       p = p.then(()=>{
         console.log("> ADVANCE TIMERS BY", step.ms + "ms");
-        emu.tx(`for(let c of global["\xff"].timers){
+        txAndWait(`for(let c of global["\xff"].timers){
           if(c) c.time -= ${step.ms * 1000};
         }\n`);
-        waitForResponse();
       });
       break;
     case "upload" :
       p = p.then(()=>{
         console.log("> UPLOADING" + (step.load ? " AND LOADING" : ""), step.file);
-        emu.tx(AppInfo.getFileUploadCommands(step.as, require("fs").readFileSync(BASE_DIR + "/" + step.file).toString()));
-        waitForResponse();
+        txAndWait(AppInfo.getFileUploadCommands(step.as, require("fs").readFileSync(BASE_DIR + "/" + step.file).toString()));
         if (step.load){
+          markBusy();
           emu.tx(`\x10load("${step.as}")\n`);
           waitForResponse();
         }
