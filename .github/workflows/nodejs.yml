@@ -58,7 +58,7 @@ jobs:
           TEST_INFRA_FILES="bin/runapptests.js .github/workflows/nodejs.yml core"
           
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            CHANGED=$(git diff --name-only ${{ github.event.pull_request.base.sha }}..HEAD)
+            REFSPEC="${{ github.event.pull_request.base.sha }}..HEAD"
           elif [ "${{ github.ref }}" = "refs/heads/master" ]; then
             # Push to master: always test all apps
             APPS=$(ls apps/*/test.json 2>/dev/null | cut -d'/' -f2 | tr '\n' ' ') || APPS=""
@@ -66,20 +66,12 @@ jobs:
             echo "Push to master - testing all apps:$APPS"
             exit 0
           else
-            CHANGED=$(git diff --name-only origin/master...HEAD)
+            # Push to other branches: test only changed apps since master
+            REFSPEC="origin/master...HEAD"
           fi
           
           # Check if test infrastructure changed - if so, run all tests
-          RUN_ALL=false
-          for f in $TEST_INFRA_FILES; do
-            if echo "$CHANGED" | grep -q "^$f$"; then
-              RUN_ALL=true
-              echo "Test infrastructure changed: $f"
-              break
-            fi
-          done
-          
-          if [ "$RUN_ALL" = "true" ]; then
+          if ! git diff --quiet "$REFSPEC" -- $TEST_INFRA_FILES 2>/dev/null; then
             APPS=$(ls apps/*/test.json 2>/dev/null | cut -d'/' -f2 | tr '\n' ' ') || APPS=""
             echo "apps=$APPS" >> $GITHUB_OUTPUT
             echo "Test infrastructure changed - testing all apps:$APPS"
@@ -87,6 +79,7 @@ jobs:
           fi
           
           # Otherwise, test only changed apps
+          CHANGED=$(git diff --name-only "$REFSPEC")
           APPS=$(echo "$CHANGED" | grep '^apps/' | cut -d'/' -f2 | sort -u) || APPS=""
           
           # Filter to apps with test.json
